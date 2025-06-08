@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
+const upload = require('./config/cloudinary'); 
+
 const user_Route = require("./routes/userRoutes");
 const product_Route = require("./routes/productRoutes");
 const cart_Route = require("./routes/cartRoutes");
@@ -27,7 +29,14 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  try {
+    return res.status(200).json({ imageUrl: req.file.path }); 
+  } catch (err) {
+    res.status(500).json({ message: 'Upload failed', error: err });
+  }
+});
 
 app.use("/api/users", user_Route);
 app.use("/api/products", product_Route);
