@@ -4,22 +4,38 @@ exports.createProduct = async (req, res) => {
     try {
       const { userId, name, oldPrice, newPrice, description, category } = req.body;
   
-      if (!userId || !name || !oldPrice || !newPrice || !description || !category || !req.files || req.files.length === 0) {
+      if (
+        !userId ||
+        !name ||
+        !oldPrice ||
+        !newPrice ||
+        !description ||
+        !category ||
+        !req.files ||
+        req.files.length === 0
+      ) {
         return res.status(400).json({ message: 'All fields and at least one image are required.' });
       }
-
-      const images = req.files.map(file => file.filename);
-
+  
+      // Cloudinary stores the full URL in file.path
+      const images = req.files.map(file => file.path);
+  
       const product = await productModel.create({
-        ...req.body,
+        userId,
+        name,
+        oldPrice,
+        newPrice,
+        description,
+        category,
         images,
       });
-
+  
       res.status(201).json(product);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   };
+  
 
 exports.getAllProducts = async (req, res) => {
     try {
